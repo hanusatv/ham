@@ -32,7 +32,7 @@ def counter(tryNo):
 
 def evaluateGuess(answer, guess, tryNo):
     logString = ""
-    icons = f'{tryNo}'
+    icons = f'{tryNo}  '
     letterList = ["", "", "", "", ""]
     # Kanna um svarið er rætt
     if guess == answer:
@@ -53,14 +53,14 @@ def evaluateGuess(answer, guess, tryNo):
         if letterList[i] == "":
             letterList[i] = f'\x1b[6;30;47m {c.upper()} \x1b[0m'
 
-    icons = f'{tryNo}{letterList[0]}{letterList[1]}{letterList[2]}{letterList[3]}{letterList[4]}\n'
+    icons += f'{letterList[0]}{letterList[1]}{letterList[2]}{letterList[3]}{letterList[4]}\n'
     return (icons)
 
 
 if __name__ == "__main__":
     tryNo = 1
     iconsList = ""
-    answer = "abbin"  #random.choice(wordlist).lower()
+    answer = random.choice(wordlist).lower()
     while tryNo < 7:
         counter(tryNo)
         guess = input("Gita hvat orðið er: ").lower()
