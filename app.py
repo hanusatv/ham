@@ -26,10 +26,6 @@ def wordValidator(guess):
             return FALSE
 
 
-def counter(tryNo):
-    return (print("Tú hevur nú ", 7 - tryNo, " forsøk eftir."))
-
-
 def evaluateGuess(answer, guess, tryNo):
     logString = ""
     icons = f'{tryNo}  '
@@ -62,7 +58,7 @@ if __name__ == "__main__":
     iconsList = ""
     answer = random.choice(wordlist).lower()
     while tryNo < 7:
-        counter(tryNo)
+        print("Tú hevur nú ", 7 - tryNo, " forsøk eftir.")
         guess = input("Gita hvat orðið er: ").lower()
         if wordValidator(guess) == TRUE:
             iconsList += evaluateGuess(answer, guess, tryNo)
@@ -72,4 +68,5 @@ if __name__ == "__main__":
             tryNo += 1
         if tryNo == 7:
             print(
-                f'Øvv. Tú kláraði tað ikki \U0001F622 \nOrðið var "{answer}"')
+                f'Øvv. Tú kláraði tað ikki \U0001F622 \nOrðið var "{answer.upper()}"'
+            )
