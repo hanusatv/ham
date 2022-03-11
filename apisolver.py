@@ -7,7 +7,12 @@ file.close()
 a = (map(lambda x: x.lower(), validGuesses))
 validGuesses = list(a)
 
-#Ger klassa við litaðum orðum
+# Ger ein lista við øllum valid wordl
+file = open("data/wordlist.json", encoding="utf-8")
+wordlist = json.load(file)
+file.close()
+a = (map(lambda x: x.lower(), wordlist))
+wordlist = list(a)
 
 
 def colorCodeLettersInGuess(answer, guess):
@@ -55,44 +60,54 @@ def colorCodeLettersInGuess(answer, guess):
 
 
 def filterValidGuesses(coloredGuess, filteredList, guess):
-    regExList = [".", ".", ".", ".", "."]
-    #print("Giti er:", guess)
-    #Forlanga allar grønar í positiónini
+    regExList = ["", "", "", "", ""]
+    regExBuffer = ["", "", "", "", ""]
+    regExLookAhead = {}
     greenLetters = coloredGuess["green"].keys()
+    yellowLetters = coloredGuess["yellow"].keys()
+    whiteLetters = coloredGuess["white"].keys()
+    #Forlanga allar grønar í positiónini
     for key in greenLetters:
+        regExLookAhead[key] = len(coloredGuess["green"][key])
         for pos in coloredGuess["green"][key]:
             regExList[pos] = key
     #Útilukka allar gular frá positiónini
-    yellowLetters = coloredGuess["yellow"].keys()
     for key in yellowLetters:
-        for pos in coloredGuess["yellow"][key]:
-            regExList[pos] = f'[^{key}]'
-    # Bygg ein pure white exclude string
-    whiteLetters = coloredGuess["white"].keys()
-    excludedWhiteLetters = ""
-    excludedWhiteLettersPosition = []
-    for key in whiteLetters:
-        if (key in greenLetters
-                or key in yellowLetters) or key in excludedWhiteLetters:
-            continue
+        if key in regExLookAhead:
+            regExLookAhead[key] += len(coloredGuess["yellow"][key])
         else:
-            excludedWhiteLetters += key
+            regExLookAhead[key] = len(coloredGuess["yellow"][key])
+        for pos in coloredGuess["yellow"][key]:
+            regExBuffer[pos] += key
+    #Útilukka hvítar frá positiónini um gulur til staðar
+    for key in whiteLetters:
+        if key in yellowLetters:
             for pos in coloredGuess["white"][key]:
-                excludedWhiteLettersPosition.append(pos)
-    # Smekka excluded lettes í regex positiónir
-    for pos in excludedWhiteLettersPosition:
-        if excludedWhiteLetters != "":
-            regExList[pos] = f'[^{excludedWhiteLetters}]'
+                regExBuffer[pos] += key
+        #Útilukka heilt um gulir ikki til staðar
+        else:
+            for i, pos in enumerate(regExBuffer):
+                regExBuffer[i] += key
+    #Smekka filtur letters í regex positiónir
+    for i, filter in enumerate(regExBuffer):
+        if regExList[i] == "":
+            regExList[i] = f'[^{regExBuffer[i]}]'
 
-    #Set strongin saman
-    regExString = "".join(regExList)
+    regExLookAheadParsed = ""
+    for key in regExLookAhead:
+        #print(key, regExLookAhead[key])
+        regExLookAheadParsed += f'(?=((.*{key}.*){{{regExLookAhead[key]}}}))'
+
+    # Set strongin saman
+    regExString = regExLookAheadParsed + "".join(regExList)
+    #print("Gitið er:", guess)
+    #print("Regex er:", regExString)
     pattern = re.compile(regExString)
     filteredValidGuesses = []
     for word in filteredList:
-        if re.match(pattern, word):
+        if re.fullmatch(pattern, word):
             filteredValidGuesses.append(word)
     #print(filteredValidGuesses)
-
     return filteredValidGuesses
 
 
@@ -104,28 +119,26 @@ def averageRun(plays):
         t = playWordle()
         noOfGuesses.append(t)
     print(sum(noOfGuesses) / len(noOfGuesses))
+    larger_elements = [element for element in noOfGuesses if element > 6]
+    print("Failure rate is", len(larger_elements) / len(noOfGuesses))
 
 
 def playWordle():
-    wordle = random.choice(validGuesses).lower()
+    wordle = random.choice(wordlist)
     filteredList = validGuesses
-    guessNo = 1
+    guessNo = 0
     coloredGuess = False
     while coloredGuess != True:
-        #print(wordle, filteredList)
-        if filteredList == []:
-            print(wordle)
-        guess = random.choice(filteredList).lower()
+        #print("Wordle er:", wordle)
+        guess = random.choice(filteredList)
+        #print(guess)
         guessNo += 1
-        #print("Gitið er:", guess)
         coloredGuess = colorCodeLettersInGuess(wordle, guess)
         if coloredGuess == True:
             return guessNo
         filteredList = filterValidGuesses(coloredGuess, filteredList, guess)
 
-    #print(f'Tú vann! Orðið var {wordle} og tú hevur gitt {guessNo} ferð')
-
 
 if __name__ == "__main__":
     #print(playWordle())
-    averageRun(10000)
+    averageRun(1000)

@@ -32,7 +32,7 @@ def evaluateGuess(answer, guess, tryNo):
     letterList = ["", "", "", "", ""]
     # Kanna um svarið er rætt
     if guess == answer:
-        icons += f'\x1b[0;30;42m {guess[0].upper()}  {guess[1].upper()}  {guess[2].upper()}  {guess[3].upper()}  {guess[4].upper()} \x1b[0m\nTillukku!! Tú vann \U0001F64A \U0001F44C \U0001F973'
+        icons += f'\x1b[0;30;42m {guess[0].upper()}  {guess[1].upper()}  {guess[2].upper()}  {guess[3].upper()}  {guess[4].upper()} \x1b[0m\nTillukku!! Tú vann \U0001F64A \U0001F44C \U0001F973 UwU'
         return icons
     # Finn øll tey grønu svarini
     for i, c in enumerate(guess):
